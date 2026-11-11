@@ -1,0 +1,27 @@
+# zależności i build
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+# testy
+playwright-report/
+test-results/
+blob-report/
+# środowisko (repo publiczne — tylko .env.example)
+.env
+.env.*
+!.env.example
+# dane lokalne i system
+.data/
+.DS_Store
+Thumbs.db
+*.log
+# klucze i cache narzędzi
+*.pem
+.eslintcache
+/playwright/.cache/

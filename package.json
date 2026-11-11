@@ -1,0 +1,49 @@
+{
+  "name": "ad-astra",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint --max-warnings=0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "lenis": "^1.3.27",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
+    "three": "^0.187.0",
+    "zod": "^4.6.7",
+    "zustand": "^5.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@tailwindcss/turbopack": "4.3.3",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/coverage-v8": "^5.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "jsdom": "^31.0.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5",
+    "vitest": "^5.1.0"
+  },
+  "packageManager": "pnpm@12.6.0",
+  "description": "Ad Astra — koncept strony inwestycji deweloperskiej (fikcyjnej).",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=22"
+  }
+}
