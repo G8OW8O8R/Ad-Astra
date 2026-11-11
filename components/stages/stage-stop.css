@@ -1,0 +1,372 @@
+/*
+ * Stop etapu budowy (StageStop.tsx). Wzorzec: TASKS.md, zadanie 5; zasady: DESIGN.md.
+ * Wartości (kolory, kroje, czasy, krzywe, krycie przyciemnienia) pochodzą z app/tokens.css.
+ *
+ * Układ: .stage-stop wypełnia kadr. Blok tekstu zaczyna się przy marginesie po swojej stronie
+ * i kończy na skali pięter (--stop-scale-x); wiersz-szpilka leży na wysokości --stop-anchor-y.
+ */
+
+.stage-stop {
+  --stop-gutter: clamp(1rem, 5vw, 5rem);
+  --stop-scale-x: 46%;
+  --stop-anchor-y: 26%;
+  --stop-star: 0.875rem;
+  --stop-pin-gap: 0.875rem;
+
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  pointer-events: none;
+  color: var(--ivory);
+}
+
+.stage-stop[data-side="right"] {
+  --stop-scale-x: 54%;
+}
+
+/* Telefon: wieża w tle za tekstem, skala przy krawędzi ekranu. */
+@media (max-width: 47.99rem) {
+  .stage-stop {
+    --stop-scale-x: calc(100% - var(--stop-gutter));
+    --stop-anchor-y: 22%;
+  }
+
+  .stage-stop[data-side="right"] {
+    --stop-scale-x: var(--stop-gutter);
+  }
+}
+
+/* ── Blok tekstu ─────────────────────────────────────────────────────────── */
+
+.stage-stop__block {
+  position: absolute;
+  top: var(--stop-anchor-y);
+  left: var(--stop-gutter);
+  width: calc(var(--stop-scale-x) - var(--stop-gutter));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  pointer-events: auto;
+}
+
+.stage-stop[data-side="right"] .stage-stop__block {
+  left: var(--stop-scale-x);
+  width: calc(100% - var(--stop-scale-x) - var(--stop-gutter));
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Wiersz-szpilka: etykieta → linia → gwiazda dokładnie na skali → numer piętra za skalą. */
+.stage-stop__pin {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: var(--stop-pin-gap);
+}
+
+.stage-stop[data-side="right"] .stage-stop__pin {
+  flex-direction: row-reverse;
+}
+
+.stage-stop__label,
+.stage-stop__floor {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: var(--tracking-label, 0.18em);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--gold-soft);
+}
+
+.stage-stop__label {
+  flex: none;
+}
+
+.stage-stop__floor {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.stage-stop__line {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  height: var(--hairline);
+  background: var(--gold-soft);
+}
+
+.stage-stop__star {
+  flex: none;
+  width: var(--stop-star);
+  height: var(--stop-star);
+  margin-right: calc(var(--stop-star) / -2);
+  color: var(--gold-soft);
+}
+
+.stage-stop[data-side="right"] .stage-stop__star {
+  margin-right: 0;
+  margin-left: calc(var(--stop-star) / -2);
+}
+
+/* Liczba-bohater i linia nagłówka: maski odsłaniające od dołu. */
+.stage-stop__figure {
+  margin: clamp(1.25rem, 3.2vh, 2.25rem) 0 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-synthesis: none;
+}
+
+.stage-stop__mask {
+  display: block;
+  /* Zapas pod linią bazową, żeby maska nie ucinała ogonków (y, ę, ś). */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+  clip-path: inset(-0.6em -0.6em 0 -0.6em);
+}
+
+.stage-stop__mask--figure {
+  font-size: var(--text-stop-figure);
+  line-height: var(--text-stop-figure--line-height);
+  letter-spacing: -0.015em;
+  font-variant-numeric: lining-nums;
+  white-space: nowrap;
+}
+
+.stage-stop__mask--headline {
+  margin-top: 0.12em;
+  font-size: var(--text-stop-headline);
+  line-height: var(--text-stop-headline--line-height);
+  text-wrap: balance;
+}
+
+.stage-stop__rise {
+  display: block;
+}
+
+/* Jednostka na linii bazowej liczby, 0.18 jej rozmiaru, kursywą. */
+.stage-stop__unit {
+  margin-inline-start: 0.12em;
+  font-size: 0.18em;
+  font-style: italic;
+  letter-spacing: 0;
+}
+
+.stage-stop__fact {
+  margin: clamp(1rem, 2.6vh, 1.75rem) 0 0;
+  max-width: 44ch;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--text-base, 1rem);
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ivory) 85%, transparent);
+}
+
+/* Numer piętra przy gwieździe, po stronie wieży. */
+.stage-stop__pin > .stage-stop__floor {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + var(--stop-star) / 2 + 0.625rem);
+  translate: 0 -50%;
+}
+
+.stage-stop[data-side="right"] .stage-stop__pin > .stage-stop__floor {
+  left: auto;
+  right: calc(100% + var(--stop-star) / 2 + 0.625rem);
+}
+
+/* ── Przyciemnienie ──────────────────────────────────────────────────────────
+ * Druga kopia bloku (aria-hidden, przezroczysty tekst) w tym samym układzie. Pod każdą linią
+ * tekstu elipsa --night o pełnym kryciu do 72% promienia, dalej miękko gaśnie do zera. Cała
+ * warstwa ma jedno krycie (--stop-scrim-alpha), więc nakładające się elipsy nie ciemnieją
+ * podwójnie i nie widać ich granic. Geometrię i kontrast sprawdza lib/brand/scrim.test.ts.
+ */
+.stage-stop__block--scrim {
+  z-index: -1;
+  color: transparent;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.stage-stop__block--scrim .stage-stop__label,
+.stage-stop__block--scrim .stage-stop__floor,
+.stage-stop__block--scrim .stage-stop__fact {
+  color: transparent;
+}
+
+.stage-stop__block--scrim .stage-stop__line,
+.stage-stop__block--scrim .stage-stop__star {
+  visibility: hidden;
+}
+
+.stage-stop__block--scrim .stage-stop__shape {
+  position: relative;
+}
+
+.stage-stop__block--scrim .stage-stop__mask {
+  clip-path: none;
+}
+
+.stage-stop__block--scrim .stage-stop__shape::before {
+  content: "";
+  position: absolute;
+  inset: min(-3rem, -80%) min(-3rem, -35%);
+  background: radial-gradient(
+    closest-side,
+    var(--night) 0 72%,
+    color-mix(in srgb, var(--night) 78%, transparent) 80%,
+    color-mix(in srgb, var(--night) 50%, transparent) 87%,
+    color-mix(in srgb, var(--night) 22%, transparent) 93%,
+    color-mix(in srgb, var(--night) 6%, transparent) 97%,
+    transparent 100%
+  );
+}
+
+/* Numer piętra jest pozycjonowany absolutnie także w kopii (reguła po .stage-stop__shape). */
+.stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor {
+  position: absolute;
+}
+
+/* Znacznik piętra (gwiazda + numer) leży daleko od bloku, na scenie. Owal jest szerszy, przesunięty
+   w stronę gwiazdy i gaśnie łagodniej (pełne krycie do 45%), żeby nie wyglądał jak naklejony krążek. */
+.stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor::before {
+  inset: -3rem -4rem -3rem -5.5rem;
+  background: radial-gradient(
+    closest-side,
+    var(--night) 0 45%,
+    color-mix(in srgb, var(--night) 78%, transparent) 58%,
+    color-mix(in srgb, var(--night) 50%, transparent) 70%,
+    color-mix(in srgb, var(--night) 22%, transparent) 83%,
+    color-mix(in srgb, var(--night) 6%, transparent) 93%,
+    transparent 100%
+  );
+}
+
+.stage-stop[data-side="right"] .stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor::before {
+  inset: -3rem -5.5rem -3rem -4rem;
+}
+
+/* Telefon: skala leży przy krawędzi ekranu, więc numer piętra stoi nad gwiazdą, nie za nią. */
+@media (max-width: 47.99rem) {
+  .stage-stop .stage-stop__pin > .stage-stop__floor,
+  .stage-stop[data-side="right"] .stage-stop__pin > .stage-stop__floor {
+    top: auto;
+    bottom: calc(100% + 0.375rem);
+    left: auto;
+    right: calc(var(--stop-star) / -2);
+    translate: 50% 0;
+  }
+
+  .stage-stop[data-side="right"] .stage-stop__pin > .stage-stop__floor {
+    right: auto;
+    left: calc(var(--stop-star) / -2);
+    translate: -50% 0;
+  }
+
+  .stage-stop .stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor::before,
+  .stage-stop[data-side="right"] .stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor::before {
+    inset: -3rem -3.5rem -4rem;
+  }
+}
+
+/* ── Wejście ─────────────────────────────────────────────────────────────────
+ * Stan spoczynku = ukryty; [data-active="true"] = stan końcowy. Opóźnienia tylko przy wejściu,
+ * wyjście cofa wszystko naraz. Bez odliczania liczb.
+ */
+.stage-stop__block--scrim {
+  transition: opacity var(--duration-mask) var(--ease-fade);
+}
+
+.stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__label {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--duration-mask) var(--ease-reveal);
+}
+
+.stage-stop[data-side="right"] .stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__label {
+  clip-path: inset(0 0 0 100%);
+}
+
+.stage-stop__line {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--duration-draw) var(--ease-draw);
+}
+
+.stage-stop[data-side="right"] .stage-stop__line {
+  transform-origin: right center;
+}
+
+.stage-stop__star {
+  opacity: 0;
+  scale: 0.3;
+  rotate: -45deg;
+  transition:
+    opacity var(--duration-fade) var(--ease-fade),
+    scale var(--duration-fade) var(--ease-reveal),
+    rotate var(--duration-fade) var(--ease-reveal);
+}
+
+.stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__floor,
+.stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__fact {
+  opacity: 0;
+  transition: opacity var(--duration-fade) var(--ease-fade);
+}
+
+.stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__rise {
+  transform: translateY(calc(100% + 0.3em));
+  transition: transform var(--duration-rise) var(--ease-reveal);
+}
+
+/* Stan końcowy */
+.stage-stop[data-active="true"] .stage-stop__block--scrim {
+  opacity: var(--stop-scrim-alpha);
+}
+
+.stage-stop[data-active="true"] .stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__label {
+  clip-path: inset(0);
+}
+
+.stage-stop[data-active="true"] .stage-stop__line {
+  transform: scaleX(1);
+  transition-delay: 180ms;
+}
+
+.stage-stop[data-active="true"] .stage-stop__star {
+  opacity: 1;
+  scale: 1;
+  rotate: 0deg;
+  transition-delay: 800ms;
+}
+
+.stage-stop[data-active="true"] .stage-stop__block .stage-stop__floor {
+  opacity: 1;
+  transition-delay: 880ms;
+}
+
+.stage-stop[data-active="true"] .stage-stop__block .stage-stop__rise {
+  transform: none;
+}
+
+.stage-stop[data-active="true"] .stage-stop__mask--figure .stage-stop__rise {
+  transition-delay: 120ms;
+}
+
+.stage-stop[data-active="true"] .stage-stop__mask--headline .stage-stop__rise {
+  transition-delay: 260ms;
+}
+
+.stage-stop[data-active="true"] .stage-stop__block .stage-stop__fact {
+  opacity: 1;
+  transition-delay: 640ms;
+}
+
+/* Reduced motion: od razu stan końcowy (i od razu ukrycie). */
+@media (prefers-reduced-motion: reduce) {
+  .stage-stop *,
+  .stage-stop *::before {
+    transition: none !important;
+  }
+}

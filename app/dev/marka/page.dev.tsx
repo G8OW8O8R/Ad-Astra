@@ -5,9 +5,8 @@ import { AdAstraLogo, AdAstraStar } from "@/components/brand/AdAstraLogo";
 import { AltumMark } from "@/components/brand/AltumMark";
 import en from "@/content/i18n/en";
 import pl from "@/content/i18n/pl";
-import { stages } from "@/content/stages";
 import { colors, contrast, cssVarName, textPairs, type ColorName } from "@/lib/brand/tokens";
-import { StopCard } from "../_marka/StopCard";
+import { StopFrames } from "../_marka/StopFrames";
 import "../../globals.css";
 
 export const metadata: Metadata = {
@@ -89,7 +88,7 @@ const nav = [
   ["uklad", "Odstępy, promienie, cienie"],
   ["logo", "Logotypy"],
   ["ikony", "Ikony i OG"],
-  ["stopy", "Stopy"],
+  ["stopy", "Stopy etapów"],
 ] as const;
 
 export default function BrandPage() {
@@ -337,35 +336,8 @@ export default function BrandPage() {
           </div>
         </Block>
 
-        <Block id="stopy" title="06 · Stopy informacyjne — PL na ulicy, EN nocą">
-          <div className="relative overflow-hidden p-6 md:p-12">
-            <Image src="/dev/ulica-pusta.jpg" alt="" fill loading="eager" sizes="100vw" className="object-cover" />
-            <div className="relative grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {stages.map((stage) => (
-                <StopCard
-                  key={stage.id}
-                  copy={pl.stages[stage.id]}
-                  floor={stage.floor}
-                  floorLabel={pl.common.floor}
-                  tone="day"
-                />
-              ))}
-            </div>
-          </div>
-          <div
-            lang="en"
-            className="mt-6 grid gap-6 bg-[radial-gradient(ellipse_at_50%_20%,#30365a_0%,var(--night)_60%)] p-6 md:grid-cols-2 md:p-12 xl:grid-cols-3"
-          >
-            {stages.map((stage) => (
-              <StopCard
-                key={stage.id}
-                copy={en.stages[stage.id]}
-                floor={stage.floor}
-                floorLabel={en.common.floor}
-                tone="night"
-              />
-            ))}
-          </div>
+        <Block id="stopy" title="06 · Stopy etapów — kadry na scenie, PL / EN">
+          <StopFrames />
         </Block>
       </main>
     </div>

@@ -58,7 +58,9 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
 
   return (
     <html lang={locale} className={`${fontVariables} h-full antialiased`}>
-      <body className="min-h-full bg-ivory font-sans text-ink">
+      {/* suppressHydrationWarning: atrybuty dopisywane do <body> przez rozszerzenia przeglądarki
+          (patrz app/dev/layout.dev.tsx). Tylko ten element, bez dzieci. */}
+      <body className="min-h-full bg-ivory font-sans text-ink" suppressHydrationWarning>
         <SmoothScroll />
         {children}
       </body>

@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 export default function DevLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pl" className={`${fontVariables} antialiased`}>
-      <body>{children}</body>
+      {/* suppressHydrationWarning: rozszerzenia przeglądarki dopisują atrybuty do <body> przed
+          hydratacją (np. data-titans-quick-view-extension-id). Dotyczy tylko atrybutów tego
+          jednego elementu, nie dzieci. */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

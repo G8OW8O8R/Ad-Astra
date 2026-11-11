@@ -1,6 +1,6 @@
 /**
  * Kroje marki (Google Fonts, OFL, serwowane lokalnie przez next/font):
- * Instrument Serif 400 — nagłówki, nazwy, ceny; Instrument Sans — interfejs i tekst.
+ * Instrument Serif 400 + kursywa — nagłówki, nazwy, ceny, jednostki w stopach; Instrument Sans — interfejs i tekst.
  * Opcje next/font muszą być literałami.
  */
 import { Instrument_Sans, Instrument_Serif } from "next/font/google";
@@ -8,6 +8,7 @@ import { Instrument_Sans, Instrument_Serif } from "next/font/google";
 export const instrumentSerif = Instrument_Serif({
   subsets: ["latin", "latin-ext"],
   weight: "400",
+  style: ["normal", "italic"],
   variable: "--font-instrument-serif",
   display: "swap",
 });

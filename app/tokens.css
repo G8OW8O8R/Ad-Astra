@@ -24,6 +24,28 @@
 
   /* Linie */
   --hairline: 1px;
+
+  /* Przyciemnienie sceny pod tekstem stopów (radialne, --night). Krycie rdzenia dobrane testem
+     kontrastu na próbkach jasnej i nocnej sceny: lib/brand/scrim.test.ts. */
+  --stop-scrim-alpha: 0.8;
+
+  /* Czasy ruchu (300–900 ms, DESIGN.md) */
+  --duration-fade: 300ms;
+  --duration-mask: 500ms;
+  --duration-rise: 700ms;
+  --duration-draw: 700ms;
+
+  /* Krzywe ruchu: odsłanianie maską (szybki start, długie wyhamowanie) i rysowanie linii. */
+  --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-fade: cubic-bezier(0.33, 0, 0.2, 1);
+
+  /* Stopy etapów: liczba-bohater 120–260 px (16vw) i linia nagłówka 28–40 px.
+     Zmienne na :root (nie w @theme), bo używa ich arkusz komponentu, a nie klasy Tailwinda. */
+  --text-stop-figure: clamp(7.5rem, 16vw, 16.25rem); /* 120–260px */
+  --text-stop-figure--line-height: 0.85;
+  --text-stop-headline: clamp(1.75rem, 1.4714rem + 1.1429vw, 2.5rem); /* 28–40px */
+  --text-stop-headline--line-height: 1.1;
 }
 
 @theme inline {
@@ -50,7 +72,7 @@
 }
 
 @theme {
-  /* Skala płynna 12–160 px (liniowo między szerokością 390 a 1440 px). */
+  /* Skala płynna 12–260 px (liniowo między szerokością 390 a 1440 px). */
   --text-*: initial;
   --text-2xs: 0.75rem; /* 12px */
   --text-2xs--line-height: 1.5;

@@ -10,11 +10,17 @@ const sectionsSchema = z.object(
   },
 );
 
-/** Stop informacyjny: etykieta etapu, nagłówek z liczbą, 1–2 zdania faktów. */
+/**
+ * Stop etapu: etykieta („Etap 05 — Tarasy i technika”), liczba-bohater z jednostką
+ * („84” + „tarasy”), jedna linia nagłówka i jedno zdanie faktów (≤ 120 znaków).
+ * Liczba jest tekstem, żeby zachować zapis tysięcy: twarda spacja w PL, przecinek w EN.
+ */
 const stageSchema = z.strictObject({
   label: text,
-  title: text,
-  body: text,
+  figure: z.string().regex(/^\d{1,3}(?:[\p{Zs},]\d{3})*$/u),
+  unit: text,
+  headline: text,
+  fact: text.max(120),
 });
 
 const stagesSchema = z.strictObject(
