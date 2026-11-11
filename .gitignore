@@ -25,3 +25,5 @@ Thumbs.db
 *.pem
 .eslintcache
 /playwright/.cache/
+# tymczasowe materiały stron /dev (wzorce z assets-src)
+/public/dev/

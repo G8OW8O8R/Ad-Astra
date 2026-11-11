@@ -53,6 +53,11 @@ test("unknown locale returns 404", async ({ page }) => {
   expect(response?.status()).toBe(404);
 });
 
+test("dev tool pages do not exist in production", async ({ page }) => {
+  const response = await page.goto("/dev/typografia");
+  expect(response?.status()).toBe(404);
+});
+
 test("robots.txt disallows everything", async ({ request }) => {
   const res = await request.get("/robots.txt");
   expect(await res.text()).toMatch(/Disallow: \//);

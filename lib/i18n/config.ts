@@ -16,6 +16,11 @@ export function localeFromPathname(pathname: string): Locale | null {
   return hasLocale(first) ? first : null;
 }
 
+/** Strony robocze (/dev/*) — poza i18n, dostępne tylko lokalnie. */
+export function isDevToolPath(pathname: string): boolean {
+  return pathname === "/dev" || pathname.startsWith("/dev/");
+}
+
 /**
  * Ścieżka przekierowania dla adresu bez prefiksu języka
  * (np. "/" → "/pl", "/kontakt" → "/pl/kontakt"). `null` = bez przekierowania.

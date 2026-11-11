@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* Strony robocze /dev — osobny arkusz, bez wpływu na docelowy wygląd strony. */
+@theme inline {
+  --font-head: var(--f-head), Georgia, serif;
+  --font-ui: var(--f-ui), system-ui, sans-serif;
+  --color-paper: #f6f1e8;
+  --color-frame: #b8955a;
+  --color-text: #2b2622;
+}
+
+body {
+  background-color: #1b1d22;
+  color: #ecebe6;
+  font-family: system-ui, sans-serif;
+}
+
+/* Cyfry wyrównane (Cormorant domyślnie ma cyfry nautyczne). */
+.nums {
+  font-variant-numeric: lining-nums tabular-nums;
+}

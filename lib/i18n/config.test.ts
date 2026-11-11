@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   defaultLocale,
   hasLocale,
+  isDevToolPath,
   localeFromPathname,
   localeRedirectPath,
 } from "./config";
@@ -30,5 +31,12 @@ describe("i18n config", () => {
     expect(localeRedirectPath("/kontakt")).toBe("/pl/kontakt");
     expect(localeRedirectPath("/pl")).toBeNull();
     expect(localeRedirectPath("/en/ceny")).toBeNull();
+  });
+
+  it("recognises dev tool paths", () => {
+    expect(isDevToolPath("/dev/typografia")).toBe(true);
+    expect(isDevToolPath("/dev")).toBe(true);
+    expect(isDevToolPath("/developer")).toBe(false);
+    expect(isDevToolPath("/pl/dev")).toBe(false);
   });
 });
