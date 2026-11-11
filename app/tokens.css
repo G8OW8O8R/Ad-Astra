@@ -1,0 +1,113 @@
+/*
+ * AD ASTRA — tokeny wyglądu. JEDYNE źródło kolorów, typografii, odstępów, promieni i cieni.
+ *
+ * - Wartości bazowe są zmiennymi CSS na :root (np. var(--gold)) — używa ich też scena 3D i SVG.
+ * - Blok @theme udostępnia je Tailwindowi (bg-ivory, text-ink, text-display, shadow-panel …).
+ * - Kopia kolorów dla miejsc bez CSS (OG image, ikony) jest w lib/brand/tokens.ts;
+ *   test lib/brand/tokens.test.ts pilnuje, żeby obie były zgodne.
+ */
+
+:root {
+  /* Kolory podstawowe */
+  --ivory: #f6f1e8; /* panele, jasne strony */
+  --ink: #2b2622; /* tekst na jasnym */
+  --ink-soft: #5c544c; /* tekst drugorzędny */
+  --gold: #b8955a; /* akcent, linie 1 px, przyciski z ciemnym tekstem (ink na gold 5,3:1) — nie tekst na ivory */
+  --gold-soft: #d9c29a; /* linie i akcenty na ciemnym */
+  --night: #1e2236; /* tło nocnych scen pod UI */
+  --sky: #6fc3df; /* akcent dzienny, oszczędnie */
+
+  /* Statusy lokali (tekst ink na każdym ≥ 4,5:1) */
+  --status-free: #9db59a;
+  --status-reserved: #d8b98a;
+  --status-sold: #b9b6b1;
+
+  /* Linie */
+  --hairline: 1px;
+}
+
+@theme inline {
+  /* Paleta marki zamiast domyślnej palety Tailwinda. */
+  --color-*: initial;
+  --color-ivory: var(--ivory);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-night: var(--night);
+  --color-sky: var(--sky);
+  --color-status-free: var(--status-free);
+  --color-status-reserved: var(--status-reserved);
+  --color-status-sold: var(--status-sold);
+  /* Neutralne do nakładek i przezroczystości (np. bg-black/30). */
+  --color-white: #fff;
+  --color-black: #000;
+
+  /* Kroje: Instrument Serif tylko 400 (hierarchia rozmiarem, rozstrzeleniem, kolorem),
+     Instrument Sans do interfejsu i tekstu. Zmienne --font-instrument-* ustawia next/font. */
+  --font-serif: var(--font-instrument-serif), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-instrument-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@theme {
+  /* Skala płynna 12–160 px (liniowo między szerokością 390 a 1440 px). */
+  --text-*: initial;
+  --text-2xs: 0.75rem; /* 12px */
+  --text-2xs--line-height: 1.5;
+  --text-xs: clamp(0.8125rem, 0.7893rem + 0.0952vw, 0.875rem); /* 13–14px */
+  --text-xs--line-height: 1.5;
+  --text-sm: clamp(0.875rem, 0.8286rem + 0.1905vw, 1rem); /* 14–16px */
+  --text-sm--line-height: 1.5;
+  --text-base: clamp(1rem, 0.9536rem + 0.1905vw, 1.125rem); /* 16–18px */
+  --text-base--line-height: 1.6;
+  --text-lg: clamp(1.125rem, 1.0321rem + 0.381vw, 1.375rem); /* 18–22px */
+  --text-lg--line-height: 1.45;
+  --text-xl: clamp(1.375rem, 1.2357rem + 0.5714vw, 1.75rem); /* 22–28px */
+  --text-xl--line-height: 1.3;
+  --text-2xl: clamp(1.625rem, 1.3929rem + 0.9524vw, 2.25rem); /* 26–36px */
+  --text-2xl--line-height: 1.15;
+  --text-3xl: clamp(2rem, 1.6286rem + 1.5238vw, 3rem); /* 32–48px */
+  --text-3xl--line-height: 1.1;
+  --text-4xl: clamp(2.5rem, 1.9429rem + 2.2857vw, 4rem); /* 40–64px */
+  --text-4xl--line-height: 1.05;
+  --text-5xl: clamp(3rem, 2.0714rem + 3.8095vw, 5.5rem); /* 48–88px */
+  --text-5xl--line-height: 1;
+  --text-6xl: clamp(3.5rem, 2.0143rem + 6.0952vw, 7.5rem); /* 56–120px */
+  --text-6xl--line-height: 0.95;
+  --text-display: clamp(4rem, 1.7714rem + 9.1429vw, 10rem); /* 64–160px */
+  --text-display--line-height: 0.9;
+
+  /* Rozstrzelenie */
+  --tracking-logo: 0.04em;
+  --tracking-label: 0.18em;
+  --tracking-motto: 0.3em;
+
+  /* Odstępy: skala 4 px (p-1 = 4px, p-6 = 24px …). */
+  --spacing: 0.25rem;
+
+  /* Promienie: panele bez zaokrągleń, chipy w pełni zaokrąglone. */
+  --radius-*: initial;
+  --radius-panel: 0;
+  --radius-chip: 9999px;
+
+  /* Cienie miękkie i ciepłe (brąz zamiast czerni). */
+  --shadow-*: initial;
+  --shadow-soft: 0 8px 24px -12px rgb(92 64 30 / 0.22);
+  --shadow-panel: 0 2px 6px rgb(92 64 30 / 0.08), 0 28px 64px -24px rgb(92 64 30 / 0.34);
+  --shadow-glow: 0 0 48px rgb(217 194 154 / 0.35);
+}
+
+/* Etykiety: Instrument Sans 500, wersaliki, rozstrzelenie 0.18em. */
+@utility label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--text-2xs);
+  line-height: 1.4;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* Cyfry tabelaryczne i wersalikowe — ceny, metraże, tabele. */
+@utility figures {
+  font-variant-numeric: lining-nums tabular-nums;
+}

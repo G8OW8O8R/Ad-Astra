@@ -1,28 +1,35 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
-/*
- * Tokeny tymczasowe — paleta i kroje zostaną ustalone w zadaniu 2 (identyfikacja).
- * Kierunek: turkusowe niebo, kremowe chmury, złota godzina, chłodne cienie.
- */
-@theme {
-  --color-cream: #f4ecdf;
-  --color-ink: #16343a;
-  --color-sky: #5fb8c2;
-  --color-gold: #c9a463;
-  --color-shadow: #3d5a73;
-
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: ui-serif, Georgia, "Times New Roman", serif;
+html {
+  background-color: var(--ivory);
+  color: var(--ink);
 }
 
 body {
-  background-color: var(--color-cream);
-  color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  background-color: var(--ivory);
+  color: var(--ink);
+}
+
+/* Instrument Serif występuje tylko w odmianie 400 — bez sztucznego pogrubiania. */
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 400;
+  font-synthesis: none;
+}
+
+::selection {
+  background-color: var(--gold-soft);
+  color: var(--ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-gold);
+  outline: var(--hairline) solid var(--gold);
   outline-offset: 3px;
 }
 

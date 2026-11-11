@@ -16,6 +16,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Pomija zasoby Next.js, pliki z rozszerzeniem (favicon, robots.txt, obrazy) i API.
-  matcher: ["/((?!_next/|api/|.*\\.[^/]+$).*)"],
+  // Pomija zasoby Next.js, API, pliki z rozszerzeniem (favicon, robots.txt, obrazy)
+  // i metadane generowane bez rozszerzenia w adresie (apple-icon, icon).
+  matcher: ["/((?!_next/|api/|apple-icon|icon|.*\\.[^/]+$).*)"],
 };

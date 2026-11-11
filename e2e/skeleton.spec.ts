@@ -58,6 +58,30 @@ test("dev tool pages do not exist in production", async ({ page }) => {
   expect(response?.status()).toBe(404);
 });
 
+test("brand icons and OG images are served", async ({ request }) => {
+  for (const [path, type] of [
+    ["/icon.svg", "image/svg+xml"],
+    ["/apple-icon", "image/png"],
+    ["/pl/opengraph-image/og", "image/png"],
+    ["/en/opengraph-image/og", "image/png"],
+  ] as const) {
+    const res = await request.get(path);
+    expect(res.status(), path).toBe(200);
+    expect(res.headers()["content-type"], path).toContain(type);
+  }
+});
+
+test("page uses brand fonts and exposes the OG image", async ({ page }) => {
+  await page.goto("/pl");
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /\/pl\/opengraph-image\/og/,
+  );
+  const bodyFont = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
+  expect(bodyFont).toContain("Instrument Sans");
+  await expect(page.getByRole("link", { name: /Ad Astra/ }).first()).toBeVisible();
+});
+
 test("robots.txt disallows everything", async ({ request }) => {
   const res = await request.get("/robots.txt");
   expect(await res.text()).toMatch(/Disallow: \//);

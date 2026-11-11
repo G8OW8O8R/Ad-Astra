@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Comparison } from "../_typografia/Comparison";
 import { fontSets } from "../_typografia/fonts";
 import { SetPreview } from "../_typografia/SetPreview";
+import "../_typografia/typografia.css";
 
 export const metadata: Metadata = {
   title: "Typografia — porównanie zestawów",

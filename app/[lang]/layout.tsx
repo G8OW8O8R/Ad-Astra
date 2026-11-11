@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { lang } from "next/root-params";
 import { SmoothScroll } from "@/components/SmoothScroll";
+import { fontVariables } from "@/lib/brand/fonts";
+import { colors } from "@/lib/brand/tokens";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { defaultLocale, hasLocale, locales } from "@/lib/i18n/config";
 import { INDEXING_ENABLED, SITE_URL } from "@/lib/site";
@@ -42,11 +44,12 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: "Ad Astra",
       type: "website",
     },
+    twitter: { card: "summary_large_image" },
   };
 }
 
 export const viewport: Viewport = {
-  themeColor: "#f4ecdf",
+  themeColor: colors.ivory,
   colorScheme: "light",
 };
 
@@ -54,8 +57,8 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
   const locale = await currentLocale();
 
   return (
-    <html lang={locale} className="h-full antialiased">
-      <body className="min-h-full bg-cream text-ink">
+    <html lang={locale} className={`${fontVariables} h-full antialiased`}>
+      <body className="min-h-full bg-ivory font-sans text-ink">
         <SmoothScroll />
         {children}
       </body>

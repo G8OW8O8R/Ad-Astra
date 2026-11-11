@@ -17,6 +17,9 @@ Next.js 16 (App Router, Cache Components) · React 19 · TypeScript (strict) ·
 Tailwind CSS 4 · three.js (scena w jednym module, bez React Three Fiber) ·
 Lenis · Zustand · Zod · Vitest · Playwright · ESLint · pnpm · Vercel
 
+Kroje: Instrument Serif (nagłówki, nazwy, ceny — tylko odmiana 400) i Instrument Sans
+(interfejs, tekst), oba na licencji SIL Open Font License, serwowane lokalnie przez `next/font`.
+
 ## Uruchomienie
 
 Wymagania: Node.js ≥ 22, pnpm (wersja z pola `packageManager`, np. przez `corepack enable`).
@@ -43,19 +46,26 @@ Przed pierwszym `pnpm test:e2e`: `pnpm build` i `pnpm exec playwright install ch
 
 ```
 app/
-  [lang]/          układ główny i strona dla /pl i /en (lang, hreflang, metadane)
-  icon.svg         favicon (tymczasowy)
+  [lang]/          układ główny i strona dla /pl i /en (lang, hreflang, metadane, OG image)
+  dev/             strony robocze /dev/* — istnieją tylko w `pnpm dev` (marka, typografia)
+  tokens.css       tokeny wyglądu: kolory, skala typografii, odstępy, promienie, cienie
+  globals.css      Tailwind + tokeny + style bazowe
+  icon.svg         favicon (gwiazda), apple-icon.tsx — ikona aplikacji
   robots.ts        robots.txt
-  globals.css      Tailwind i tokeny (tymczasowe do czasu identyfikacji)
-components/        komponenty interfejsu (nagłówek, stopka, sekcje, przełącznik języka)
+components/
+  brand/           logo AD ASTRA, gwiazda, znak ALTUM Development (SVG, currentColor)
+  …                nagłówek, stopka, sekcje, przełącznik języka
 content/
-  i18n/            słowniki PL/EN i ich schemat (Zod)
+  i18n/            słowniki PL/EN i ich schemat (Zod), w tym teksty stopów informacyjnych
   sections.ts      lista sekcji strony i ich identyfikatory
+  stages.ts        6 etapów budowy i ich piętra na skali 00–42
 lib/
+  brand/           fonty, kopia kolorów dla OG/ikon (zgodność pilnuje test), kontrast WCAG
   i18n/            konfiguracja języków i ładowanie słowników
   scene/           moduł sceny three.js: init, setProgress(0–1), resize, dispose
   store/           wspólny stan (Zustand)
   site.ts          adres strony i przełącznik indeksowania
+scripts/brand/     generator ścieżek SVG znaków z konturów fontów
 e2e/               testy Playwright
 proxy.ts           przekierowanie adresów bez języka na /pl
 ```
@@ -63,6 +73,12 @@ proxy.ts           przekierowanie adresów bez języka na /pl
 Sekcje strony (kotwice wspólne dla obu języków): `#scena`, `#penthouse`,
 `#deweloper`, `#mieszkania`, `#ceny`, `#dostosowanie`, `#lokalizacja`,
 `#harmonogram`, `#finansowanie`, `#kontakt`.
+
+## Marka
+
+- **Tokeny** są w jednym miejscu, `app/tokens.css`: zmienne CSS (`--ivory`, `--ink`, `--gold` …) i blok `@theme` Tailwinda (`bg-ivory`, `text-display`, `shadow-panel`, `rounded-chip`, klasy `label` i `figures`). Testy pilnują, żeby kopia kolorów w `lib/brand/tokens.ts` była zgodna z CSS i żeby każda para tekst/tło miała kontrast co najmniej 4,5:1.
+- **Logo** to ścieżki SVG wygenerowane z konturów fontów, więc nie zależą od ładowania kroju (favicon, OG image). Po zmianie znaku: `python scripts/brand/generate_brand_paths.py <katalog z fontami>` (wymaga `fonttools` i `uharfbuzz`; pliki fontów z [google/fonts](https://github.com/google/fonts), katalogi `ofl/instrumentserif` i `ofl/instrumentsans`).
+- Podgląd całości: `pnpm dev` → `/dev/marka`.
 
 ## Zasada nr 1: nic nie wygląda jak płaskie zdjęcie wklejone na zdjęcie
 
@@ -91,6 +107,7 @@ Do czasu publikacji strona nie jest indeksowana (`meta robots`, nagłówek
 Repozytorium ma dwie licencje (szczegóły w [LICENSE](LICENSE)):
 
 - **Kod** (TypeScript, CSS, konfiguracja, testy) jest na licencji **MIT**. Możesz go używać, zmieniać i rozpowszechniać.
+- **Fonty** Instrument Serif i Instrument Sans są na licencji SIL Open Font License 1.1 (autorzy: The Instrument Serif / Instrument Sans Project Authors). Pliki fontów nie są częścią repozytorium.
 - **Grafiki, teksty i marka** (obrazy, rendery, tekst strony w każdym języku, nazwy „Ad Astra” i „ALTUM Development”, logo, identyfikacja wizualna, marka GOVO DIGITAL) to **© GOVO DIGITAL, wszelkie prawa zastrzeżone**. Nie wolno ich kopiować ani używać w innych projektach bez pisemnej zgody.
 
 Podział jest celowy: kod może posłużyć innym jako przykład, ale treść i wygląd
