@@ -1,152 +1,152 @@
 /*
- * Stop etapu budowy (StageStop.tsx). Wzorzec: TASKS.md, zadanie 5; zasady: DESIGN.md.
- * Wartości (kolory, kroje, czasy, krzywe, krycie przyciemnienia) pochodzą z app/tokens.css.
- *
- * Układ: .stage-stop wypełnia kadr. Blok tekstu zaczyna się przy marginesie po swojej stronie
- * i kończy na skali pięter (--stop-scale-x); wiersz-szpilka leży na wysokości --stop-anchor-y.
+ * Stop etapu budowy (StageStop.tsx) — kadr filmowy. Wzorzec: TASKS.md, zadanie 5 (wersja 2).
+ * Wartości (kolory, kroje, czasy, krzywe, krycia, cień tekstu) pochodzą z app/tokens.css.
+ * Krzywe marginesu i winiety muszą zgadzać się z lib/brand/legibility.ts (sprawdza test).
  */
 
 .stage-stop {
-  --stop-gutter: clamp(1rem, 5vw, 5rem);
-  --stop-scale-x: 46%;
-  --stop-anchor-y: 26%;
+  --stop-margin-x: 6cqw;
+  /* Skala pięter przy prawej krawędzi: środek gwiazdy. Piętro 42 na 18%, piętro 00 na 82%. */
+  --stop-scale-x: max(1rem, 2.5cqw);
   --stop-star: 0.875rem;
-  --stop-pin-gap: 0.875rem;
+  --stop-figure-fit: calc((100cqw - 2 * var(--stop-margin-x)) / var(--stop-figure-em, 1.2));
+
+  --stop-label-size: 0.8125rem;
+  --stop-label-weight: 600;
+  --stop-label-color: var(--ivory);
 
   position: absolute;
   inset: 0;
+  container-type: size;
   isolation: isolate;
   pointer-events: none;
   color: var(--ivory);
 }
 
-.stage-stop[data-side="right"] {
-  --stop-scale-x: 54%;
+/* ── Kinowy margines + krawędź skali + winieta ───────────────────────────────
+ * 1. Kinowy margines: liniowe przyciemnienie od krawędzi po stronie tekstu. Pełne krycie sięga do
+ *    końca bloku tekstu (--stop-extent, mierzone w StageStop.tsx), potem łagodnie gaśnie na
+ *    --stop-fade. Na szerokim ekranie kończy się ok. 50–60% szerokości; na telefonie (tekst na całą
+ *    szerokość, w górnej części kadru) biegnie od górnej krawędzi w dół.
+ * 2. Wąskie przyciemnienie prawej krawędzi pod skalą pięter (--stop-rail-width: 10% szerokości,
+ *    ale nie mniej niż 8rem, żeby na telefonie objęło cały znacznik piętra).
+ * 3. Delikatna winieta całego kadru.
+ * Wszystko zaczyna się przy krawędzi ekranu i gaśnie do zera — nigdzie nie widać granicy.
+ * Krzywe muszą zgadzać się z lib/brand/legibility.ts (sprawdza test).
+ */
+.stage-stop__shade {
+  --stop-rail-width: max(10%, 8rem);
+  --stop-margin-direction: to right;
+  --stop-extent: var(--stop-extent-x, 40%);
+  --stop-fade: 22%;
+
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      var(--stop-margin-direction),
+      color-mix(in srgb, var(--night) calc(var(--stop-margin-alpha) * 100%), transparent) 0%,
+      color-mix(in srgb, var(--night) calc(var(--stop-margin-alpha) * 100%), transparent) var(--stop-extent),
+      color-mix(in srgb, var(--night) calc(var(--stop-margin-alpha) * 80%), transparent) calc(var(--stop-extent) + var(--stop-fade) * 0.25),
+      color-mix(in srgb, var(--night) calc(var(--stop-margin-alpha) * 50%), transparent) calc(var(--stop-extent) + var(--stop-fade) * 0.5),
+      color-mix(in srgb, var(--night) calc(var(--stop-margin-alpha) * 20%), transparent) calc(var(--stop-extent) + var(--stop-fade) * 0.75),
+      transparent calc(var(--stop-extent) + var(--stop-fade))
+    ),
+    linear-gradient(
+      to left,
+      color-mix(in srgb, var(--night) calc(var(--stop-rail-alpha) * 100%), transparent) 0%,
+      color-mix(in srgb, var(--night) calc(var(--stop-rail-alpha) * 90%), transparent) calc(var(--stop-rail-width) * 0.35),
+      color-mix(in srgb, var(--night) calc(var(--stop-rail-alpha) * 55%), transparent) calc(var(--stop-rail-width) * 0.6),
+      color-mix(in srgb, var(--night) calc(var(--stop-rail-alpha) * 22%), transparent) calc(var(--stop-rail-width) * 0.8),
+      transparent var(--stop-rail-width)
+    ),
+    radial-gradient(
+      ellipse farthest-corner at 50% 50%,
+      transparent 45%,
+      color-mix(in srgb, var(--night) calc(var(--stop-vignette-alpha) * 35%), transparent) 70%,
+      color-mix(in srgb, var(--night) calc(var(--stop-vignette-alpha) * 100%), transparent) 100%
+    );
 }
 
-/* Telefon: wieża w tle za tekstem, skala przy krawędzi ekranu. */
+.stage-stop[data-side="right"] .stage-stop__shade {
+  --stop-margin-direction: to left;
+}
+
 @media (max-width: 47.99rem) {
-  .stage-stop {
-    --stop-scale-x: calc(100% - var(--stop-gutter));
-    --stop-anchor-y: 22%;
-  }
-
-  .stage-stop[data-side="right"] {
-    --stop-scale-x: var(--stop-gutter);
+  .stage-stop .stage-stop__shade,
+  .stage-stop[data-side="right"] .stage-stop__shade {
+    --stop-margin-direction: to bottom;
+    --stop-extent: var(--stop-extent-y, 60%);
+    --stop-fade: 20%;
   }
 }
 
-/* ── Blok tekstu ─────────────────────────────────────────────────────────── */
+/* ── Blok tekstu: od ok. 18% wysokości, margines 6vw ───────────────────────── */
 
 .stage-stop__block {
   position: absolute;
-  top: var(--stop-anchor-y);
-  left: var(--stop-gutter);
-  width: calc(var(--stop-scale-x) - var(--stop-gutter));
+  top: 18%;
+  left: var(--stop-margin-x);
+  max-width: calc(100% - 2 * var(--stop-margin-x));
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
+  text-shadow: var(--shadow-text);
   pointer-events: auto;
 }
 
 .stage-stop[data-side="right"] .stage-stop__block {
-  left: var(--stop-scale-x);
-  width: calc(100% - var(--stop-scale-x) - var(--stop-gutter));
+  left: auto;
+  right: var(--stop-margin-x);
   align-items: flex-end;
   text-align: right;
-}
-
-/* Wiersz-szpilka: etykieta → linia → gwiazda dokładnie na skali → numer piętra za skalą. */
-.stage-stop__pin {
-  position: relative;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  gap: var(--stop-pin-gap);
-}
-
-.stage-stop[data-side="right"] .stage-stop__pin {
-  flex-direction: row-reverse;
 }
 
 .stage-stop__label,
 .stage-stop__floor {
   margin: 0;
   font-family: var(--font-sans);
-  font-weight: 500;
-  font-size: 0.75rem;
+  font-size: var(--stop-label-size);
+  font-weight: var(--stop-label-weight);
   line-height: 1.4;
-  letter-spacing: var(--tracking-label, 0.18em);
-  text-transform: uppercase;
   white-space: nowrap;
-  color: var(--gold-soft);
 }
 
 .stage-stop__label {
-  flex: none;
+  letter-spacing: var(--tracking-label, 0.18em);
+  text-transform: uppercase;
+  color: var(--stop-label-color);
 }
 
-.stage-stop__floor {
-  font-variant-numeric: lining-nums tabular-nums;
-}
-
-.stage-stop__line {
-  flex: 1 1 auto;
-  min-width: 1.5rem;
-  height: var(--hairline);
-  background: var(--gold-soft);
-}
-
-.stage-stop__star {
-  flex: none;
-  width: var(--stop-star);
-  height: var(--stop-star);
-  margin-right: calc(var(--stop-star) / -2);
-  color: var(--gold-soft);
-}
-
-.stage-stop[data-side="right"] .stage-stop__star {
-  margin-right: 0;
-  margin-left: calc(var(--stop-star) / -2);
-}
-
-/* Liczba-bohater i linia nagłówka: maski odsłaniające od dołu. */
 .stage-stop__figure {
-  margin: clamp(1.25rem, 3.2vh, 2.25rem) 0 0;
+  margin: clamp(1rem, 3cqh, 2rem) 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
   font-family: var(--font-serif);
   font-weight: 400;
   font-synthesis: none;
 }
 
+/* Liczba-bohater 160–320 px; na wąskim lub niskim ekranie mniejsza, żeby zmieściła się w kadrze. */
 .stage-stop__mask {
   display: block;
-  /* Zapas pod linią bazową, żeby maska nie ucinała ogonków (y, ę, ś). */
-  padding-bottom: 0.14em;
-  margin-bottom: -0.14em;
-  clip-path: inset(-0.6em -0.6em 0 -0.6em);
-}
-
-.stage-stop__mask--figure {
-  font-size: var(--text-stop-figure);
+  font-size: min(var(--text-stop-figure), 36cqh, var(--stop-figure-fit));
   line-height: var(--text-stop-figure--line-height);
   letter-spacing: -0.015em;
   font-variant-numeric: lining-nums;
   white-space: nowrap;
-}
-
-.stage-stop__mask--headline {
-  margin-top: 0.12em;
-  font-size: var(--text-stop-headline);
-  line-height: var(--text-stop-headline--line-height);
-  text-wrap: balance;
+  /* Maska od dołu z zapasem pod linią bazową (ogonek „y” w jednostce). */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+  clip-path: inset(-0.6em -0.6em 0 -0.6em);
 }
 
 .stage-stop__rise {
   display: block;
 }
 
-/* Jednostka na linii bazowej liczby, 0.18 jej rozmiaru, kursywą. */
 .stage-stop__unit {
   margin-inline-start: 0.12em;
   font-size: 0.18em;
@@ -154,149 +154,133 @@
   letter-spacing: 0;
 }
 
+.stage-stop__headline {
+  display: block;
+  margin-top: clamp(1.25rem, 4.5cqh, 3rem);
+  font-size: var(--text-stop-headline);
+  line-height: var(--text-stop-headline--line-height);
+  text-wrap: balance;
+}
+
 .stage-stop__fact {
-  margin: clamp(1rem, 2.6vh, 1.75rem) 0 0;
-  max-width: 44ch;
+  margin: clamp(1rem, 3cqh, 2rem) 0 0;
+  max-width: 36ch;
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: var(--text-base, 1rem);
   line-height: 1.5;
-  color: color-mix(in srgb, var(--ivory) 85%, transparent);
+  color: var(--ivory);
 }
 
-/* Numer piętra przy gwieździe, po stronie wieży. */
-.stage-stop__pin > .stage-stop__floor {
+/* ── Przypięcie do wieży: linia z łamaniem i kropka 4 px ──────────────────── */
+
+.stage-stop__wire {
   position: absolute;
-  top: 50%;
-  left: calc(100% + var(--stop-star) / 2 + 0.625rem);
-  translate: 0 -50%;
+  inset: 0;
+  overflow: visible;
 }
 
-.stage-stop[data-side="right"] .stage-stop__pin > .stage-stop__floor {
-  left: auto;
-  right: calc(100% + var(--stop-star) / 2 + 0.625rem);
+.stage-stop__wire polyline {
+  fill: none;
+  stroke: var(--gold-soft);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
 }
 
-/* ── Przyciemnienie ──────────────────────────────────────────────────────────
- * Druga kopia bloku (aria-hidden, przezroczysty tekst) w tym samym układzie. Pod każdą linią
- * tekstu elipsa --night o pełnym kryciu do 72% promienia, dalej miękko gaśnie do zera. Cała
- * warstwa ma jedno krycie (--stop-scrim-alpha), więc nakładające się elipsy nie ciemnieją
- * podwójnie i nie widać ich granic. Geometrię i kontrast sprawdza lib/brand/scrim.test.ts.
- */
-.stage-stop__block--scrim {
-  z-index: -1;
-  color: transparent;
-  opacity: 0;
-  pointer-events: none;
-  user-select: none;
+.stage-stop__dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: var(--gold-soft);
 }
 
-.stage-stop__block--scrim .stage-stop__label,
-.stage-stop__block--scrim .stage-stop__floor,
-.stage-stop__block--scrim .stage-stop__fact {
-  color: transparent;
-}
-
-.stage-stop__block--scrim .stage-stop__line,
-.stage-stop__block--scrim .stage-stop__star {
-  visibility: hidden;
-}
-
-.stage-stop__block--scrim .stage-stop__shape {
-  position: relative;
-}
-
-.stage-stop__block--scrim .stage-stop__mask {
-  clip-path: none;
-}
-
-.stage-stop__block--scrim .stage-stop__shape::before {
+.stage-stop__dot::after {
   content: "";
   position: absolute;
-  inset: min(-3rem, -80%) min(-3rem, -35%);
-  background: radial-gradient(
-    closest-side,
-    var(--night) 0 72%,
-    color-mix(in srgb, var(--night) 78%, transparent) 80%,
-    color-mix(in srgb, var(--night) 50%, transparent) 87%,
-    color-mix(in srgb, var(--night) 22%, transparent) 93%,
-    color-mix(in srgb, var(--night) 6%, transparent) 97%,
-    transparent 100%
-  );
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--gold-soft);
+  opacity: 0;
 }
 
-/* Numer piętra jest pozycjonowany absolutnie także w kopii (reguła po .stage-stop__shape). */
-.stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor {
+/* ── Skala pięter po prawej: gwiazda + numer, bez tła ──────────────────────── */
+
+.stage-stop__marker {
   position: absolute;
+  margin: 0;
+  right: calc(var(--stop-scale-x) - var(--stop-star) / 2);
+  top: calc(82% - var(--stop-floor-t, 0) * 64%);
+  translate: 0 -50%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-shadow: var(--shadow-text);
 }
 
-/* Znacznik piętra (gwiazda + numer) leży daleko od bloku, na scenie. Owal jest szerszy, przesunięty
-   w stronę gwiazdy i gaśnie łagodniej (pełne krycie do 45%), żeby nie wyglądał jak naklejony krążek. */
-.stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor::before {
-  inset: -3rem -4rem -3rem -5.5rem;
-  background: radial-gradient(
-    closest-side,
-    var(--night) 0 45%,
-    color-mix(in srgb, var(--night) 78%, transparent) 58%,
-    color-mix(in srgb, var(--night) 50%, transparent) 70%,
-    color-mix(in srgb, var(--night) 22%, transparent) 83%,
-    color-mix(in srgb, var(--night) 6%, transparent) 93%,
-    transparent 100%
-  );
+.stage-stop__floor {
+  color: var(--ivory);
+  letter-spacing: 0.04em;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
-.stage-stop[data-side="right"] .stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor::before {
-  inset: -3rem -5.5rem -3rem -4rem;
+.stage-stop__star {
+  flex: none;
+  width: var(--stop-star);
+  height: var(--stop-star);
+  color: var(--gold-soft);
+  filter: drop-shadow(0 1px 8px rgb(15 18 32 / 0.35));
 }
 
-/* Telefon: skala leży przy krawędzi ekranu, więc numer piętra stoi nad gwiazdą, nie za nią. */
+/* Telefon: skala zostaje przy prawej krawędzi, więc blok kończy się przed nią. */
 @media (max-width: 47.99rem) {
-  .stage-stop .stage-stop__pin > .stage-stop__floor,
-  .stage-stop[data-side="right"] .stage-stop__pin > .stage-stop__floor {
-    top: auto;
-    bottom: calc(100% + 0.375rem);
-    left: auto;
-    right: calc(var(--stop-star) / -2);
-    translate: 50% 0;
+  .stage-stop {
+    --stop-figure-fit: calc((100cqw - var(--stop-margin-x) - 3.5rem) / var(--stop-figure-em, 1.2));
   }
 
-  .stage-stop[data-side="right"] .stage-stop__pin > .stage-stop__floor {
-    right: auto;
-    left: calc(var(--stop-star) / -2);
-    translate: -50% 0;
+  .stage-stop__block {
+    max-width: calc(100% - var(--stop-margin-x) - 3.5rem);
   }
 
-  .stage-stop .stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor::before,
-  .stage-stop[data-side="right"] .stage-stop__block--scrim .stage-stop__pin > .stage-stop__floor::before {
-    inset: -3rem -3.5rem -4rem;
+  .stage-stop[data-side="right"] .stage-stop__block {
+    right: 3.5rem;
   }
 }
 
-/* ── Wejście ─────────────────────────────────────────────────────────────────
- * Stan spoczynku = ukryty; [data-active="true"] = stan końcowy. Opóźnienia tylko przy wejściu,
- * wyjście cofa wszystko naraz. Bez odliczania liczb.
+/* ── Ruch ────────────────────────────────────────────────────────────────────
+ * Spoczynek = ukryty, [data-active="true"] = stan końcowy. Przejście w stan aktywny ma własne czasy
+ * i przesunięcia (wejście), powrót używa czasów spoczynku: wszystko naraz w 300 ms (wyjście).
  */
-.stage-stop__block--scrim {
-  transition: opacity var(--duration-mask) var(--ease-fade);
+.stage-stop__shade {
+  opacity: 0;
+  transition: opacity var(--duration-exit) var(--ease-fade);
 }
 
-.stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__label {
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path var(--duration-mask) var(--ease-reveal);
+.stage-stop__sharpen {
+  opacity: 0;
+  filter: blur(12px);
+  transition:
+    opacity var(--duration-exit) var(--ease-fade),
+    filter var(--duration-exit) var(--ease-fade);
 }
 
-.stage-stop[data-side="right"] .stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__label {
-  clip-path: inset(0 0 0 100%);
+.stage-stop__rise {
+  transform: translateY(calc(100% + 0.3em));
+  transition: transform var(--duration-exit) var(--ease-fade);
 }
 
-.stage-stop__line {
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform var(--duration-draw) var(--ease-draw);
+.stage-stop__wire polyline {
+  transition: stroke-dashoffset var(--duration-exit) var(--ease-fade);
 }
 
-.stage-stop[data-side="right"] .stage-stop__line {
-  transform-origin: right center;
+.stage-stop__dot {
+  opacity: 0;
+  scale: 0.3;
+  transition:
+    opacity var(--duration-exit) var(--ease-fade),
+    scale var(--duration-exit) var(--ease-fade);
 }
 
 .stage-stop__star {
@@ -304,69 +288,103 @@
   scale: 0.3;
   rotate: -45deg;
   transition:
-    opacity var(--duration-fade) var(--ease-fade),
-    scale var(--duration-fade) var(--ease-reveal),
-    rotate var(--duration-fade) var(--ease-reveal);
+    opacity var(--duration-exit) var(--ease-fade),
+    scale var(--duration-exit) var(--ease-fade),
+    rotate var(--duration-exit) var(--ease-fade);
 }
 
-.stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__floor,
-.stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__fact {
-  opacity: 0;
-  transition: opacity var(--duration-fade) var(--ease-fade);
+/* Wejście */
+.stage-stop[data-active="true"] .stage-stop__shade {
+  opacity: 1;
+  transition: opacity var(--duration-sharpen) var(--ease-fade);
 }
 
-.stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__rise {
-  transform: translateY(calc(100% + 0.3em));
-  transition: transform var(--duration-rise) var(--ease-reveal);
+.stage-stop[data-active="true"] .stage-stop__sharpen {
+  opacity: 1;
+  filter: blur(0);
+  transition:
+    opacity var(--duration-sharpen) var(--ease-fade) var(--stop-delay, 0ms),
+    filter var(--duration-sharpen) var(--ease-reveal) var(--stop-delay, 0ms);
 }
 
-/* Stan końcowy */
-.stage-stop[data-active="true"] .stage-stop__block--scrim {
-  opacity: var(--stop-scrim-alpha);
+.stage-stop__label {
+  --stop-delay: 0ms;
 }
 
-.stage-stop[data-active="true"] .stage-stop__block:not(.stage-stop__block--scrim) .stage-stop__label {
-  clip-path: inset(0);
+.stage-stop__headline {
+  --stop-delay: calc(var(--stagger) * 2);
 }
 
-.stage-stop[data-active="true"] .stage-stop__line {
-  transform: scaleX(1);
-  transition-delay: 180ms;
+.stage-stop__fact {
+  --stop-delay: calc(var(--stagger) * 3);
 }
 
+.stage-stop__floor {
+  --stop-delay: calc(var(--stagger) * 5);
+}
+
+.stage-stop[data-active="true"] .stage-stop__rise {
+  transform: none;
+  transition: transform var(--duration-rise) var(--ease-reveal) var(--stagger);
+}
+
+.stage-stop[data-active="true"] .stage-stop__wire polyline {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--duration-draw) var(--ease-draw) calc(var(--stagger) * 3);
+}
+
+.stage-stop[data-active="true"] .stage-stop__dot {
+  opacity: 1;
+  scale: 1;
+  transition:
+    opacity var(--duration-exit) var(--ease-fade) calc(var(--stagger) * 3 + var(--duration-draw)),
+    scale var(--duration-exit) var(--ease-flare) calc(var(--stagger) * 3 + var(--duration-draw));
+}
+
+/* Kropka pulsuje raz na 3 s. */
+.stage-stop[data-active="true"] .stage-stop__dot::after {
+  animation: stage-stop-pulse 3s var(--ease-fade) 1.2s infinite;
+}
+
+/* Gwiazda rozbłyskuje raz: wyskakuje z lekkim przestrzeleniem i na chwilę się rozjaśnia. */
 .stage-stop[data-active="true"] .stage-stop__star {
   opacity: 1;
   scale: 1;
   rotate: 0deg;
-  transition-delay: 800ms;
+  transition:
+    opacity var(--duration-exit) var(--ease-fade) calc(var(--stagger) * 4),
+    scale var(--duration-sharpen) var(--ease-flare) calc(var(--stagger) * 4),
+    rotate var(--duration-sharpen) var(--ease-reveal) calc(var(--stagger) * 4);
+  animation: stage-stop-flare var(--duration-sharpen) var(--ease-fade) calc(var(--stagger) * 4) 1 both;
 }
 
-.stage-stop[data-active="true"] .stage-stop__block .stage-stop__floor {
-  opacity: 1;
-  transition-delay: 880ms;
+@keyframes stage-stop-pulse {
+  0% {
+    opacity: 0.8;
+    scale: 1;
+  }
+  40%,
+  100% {
+    opacity: 0;
+    scale: 4.5;
+  }
 }
 
-.stage-stop[data-active="true"] .stage-stop__block .stage-stop__rise {
-  transform: none;
+@keyframes stage-stop-flare {
+  0%,
+  100% {
+    filter: drop-shadow(0 1px 8px rgb(15 18 32 / 0.35)) brightness(1);
+  }
+  45% {
+    filter: drop-shadow(0 1px 8px rgb(15 18 32 / 0.35)) brightness(1.7);
+  }
 }
 
-.stage-stop[data-active="true"] .stage-stop__mask--figure .stage-stop__rise {
-  transition-delay: 120ms;
-}
-
-.stage-stop[data-active="true"] .stage-stop__mask--headline .stage-stop__rise {
-  transition-delay: 260ms;
-}
-
-.stage-stop[data-active="true"] .stage-stop__block .stage-stop__fact {
-  opacity: 1;
-  transition-delay: 640ms;
-}
-
-/* Reduced motion: od razu stan końcowy (i od razu ukrycie). */
+/* Reduced motion: od razu stan końcowy, bez pulsowania. */
 @media (prefers-reduced-motion: reduce) {
   .stage-stop *,
-  .stage-stop *::before {
+  .stage-stop *::after {
     transition: none !important;
+    animation: none !important;
   }
 }

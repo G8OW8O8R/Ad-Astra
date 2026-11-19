@@ -25,11 +25,11 @@ describe("design tokens", () => {
     expect(contrast(colors[text], colors[background])).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("type scale spans 12–260 px (stop figure)", () => {
+  it("type scale spans 12–320 px (stop figure)", () => {
     const sizes = [...css.matchAll(/--text-[a-z0-9-]+:\s*([^;]+);/g)].map((m) => m[1] as string);
     const px = sizes.flatMap((v) => [...v.matchAll(/([\d.]+)rem(?![^,]*vw)/g)].map((m) => Number(m[1]) * 16));
     expect(Math.min(...px)).toBe(12);
-    expect(Math.max(...px)).toBe(260);
+    expect(Math.max(...px)).toBe(320);
   });
 
   it("computes WCAG contrast correctly", () => {

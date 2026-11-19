@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { TOWER, lamellaRadius } from "../lib/scene/tower-config";
 import en from "./i18n/en";
 import pl from "./i18n/pl";
 import { TOP_FLOOR, formatFloor, stages } from "./stages";
@@ -98,6 +99,17 @@ describe("construction stages", () => {
         expect(148 + 24).toBe(asNumber(szczyt.figure));
         // Dwa tarasy na każdym piętrze.
         expect(asNumber(tarasy.figure)).toBe(TOP_FLOOR * 2);
+      });
+
+      it("matches the façade model: lamella count and spacing on the perimeter", () => {
+        const { fasada, szczyt } = dict.stages;
+        const count = TOWER.facade.lamellas;
+        // Rozstaw osiowy lamel przy parterze (najszerszy obwód), zaokrąglony do 0,1 m.
+        const spacing = Math.round(((2 * Math.PI * lamellaRadius(0)) / count) * 10) / 10;
+        const decimal = lang === "pl" ? String(spacing).replace(".", ",") : String(spacing);
+        expect(fasada.headline).toMatch(new RegExp(`\\b${count}\\b`));
+        expect(fasada.headline).toMatch(new RegExp(`\\b${decimal.replace(".", "\\.")}\\sm\\b`));
+        expect(szczyt.fact).toMatch(new RegExp(`\\b${TOWER.crown.lamellas}\\b`));
       });
 
       it("uses the same figures as the other language", () => {

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { StageStop, type StageStopSide } from "@/components/stages/StageStop";
+import { StageStop, type StagePin, type StageStopSide } from "@/components/stages/StageStop";
 import en from "@/content/i18n/en";
 import pl from "@/content/i18n/pl";
 import { TOP_FLOOR, stages } from "@/content/stages";
@@ -10,52 +10,60 @@ import { TOP_FLOOR, stages } from "@/content/stages";
 const dictionaries = { pl, en } as const;
 type Lang = keyof typeof dictionaries;
 
-/** Kadry: 3 etapy na ulicy (dzień), 3 na nocnej panoramie; obie strony stopu w każdej scenie. */
-const frames = stages.map((stage, i) => ({
-  stage,
-  scene: i < 3 ? ("day" as const) : ("night" as const),
-  side: (["left", "left", "right", "left", "right", "left"] as const)[i] as StageStopSide,
-}));
-
 const plates = {
-  day: { src: "/dev/ulica-pusta.jpg", position: "object-[50%_60%]", name: "ulica, dzień" },
-  night: { src: "/dev/taras-noc.jpg", position: "object-[50%_50%]", name: "panorama, noc" },
+  day: { src: "/dev/ulica-pusta.jpg", width: 2576, height: 1438, posX: 0.5, posY: 0.6, name: "ulica, dzień" },
+  night: { src: "/dev/taras-noc.jpg", width: 2752, height: 1536, posX: 0.5, posY: 0.5, name: "taras, noc" },
 } as const;
 
-/** Odstęp pięter na szkicu skali (rem). */
-const TICK = 0.875;
-const TICKS_AROUND = 9;
-
 /**
- * Szkic skali pięter tylko na potrzeby podglądu (docelowa skala powstanie w zadaniu 5):
- * kreski pięter wokół bieżącego, które leży na wysokości linii stopu. Gwiazdę rysuje stop.
+ * Kadry: etapy 01–03 na ulicy (dzień), 04–06 na tarasie (noc); obie strony stopu w każdej scenie.
+ * `pin` to zaślepka punktu na wieży we współrzędnych planszy (ułamki): wykop i miejsce, gdzie wieża
+ * będzie rosła, a nocą elewacja i donice tarasu. W zadaniu 5 punkt przyjdzie z modelu 3D.
  */
-function FloorScaleSketch({ floor, side }: { floor: number; side: StageStopSide }) {
-  const floors = Array.from({ length: TICKS_AROUND * 2 + 1 }, (_, i) => floor + TICKS_AROUND - i).filter(
-    (f) => f >= 0 && f <= TOP_FLOOR && f !== floor,
-  );
+const frames: ReadonlyArray<{
+  stage: (typeof stages)[number];
+  scene: keyof typeof plates;
+  side: StageStopSide;
+  pin: StagePin;
+}> = [
+  { stage: stages[0], scene: "day", side: "left", pin: { x: 0.535, y: 0.8 } },
+  { stage: stages[1], scene: "day", side: "left", pin: { x: 0.535, y: 0.62 } },
+  { stage: stages[2], scene: "day", side: "right", pin: { x: 0.535, y: 0.45 } },
+  { stage: stages[3], scene: "night", side: "left", pin: { x: 0.585, y: 0.35 } },
+  { stage: stages[4], scene: "night", side: "right", pin: { x: 0.36, y: 0.6 } },
+  { stage: stages[5], scene: "night", side: "left", pin: { x: 0.6, y: 0.06 } },
+];
+
+/** Punkt planszy (ułamki obrazu) → punkt kadru przy `object-fit: cover` i danym `object-position`. */
+function coverPoint(
+  plate: (typeof plates)[keyof typeof plates],
+  frameWidth: number,
+  frameHeight: number,
+  point: StagePin,
+): StagePin {
+  const scale = Math.max(frameWidth / plate.width, frameHeight / plate.height);
+  const width = plate.width * scale;
+  const height = plate.height * scale;
+  const left = (frameWidth - width) * plate.posX;
+  const top = (frameHeight - height) * plate.posY;
+  return { x: (left + point.x * width) / frameWidth, y: (top + point.y * height) / frameHeight };
+}
+
+/** Szkic skali pięter tylko w podglądzie: kreski co 6 pięter przy prawej krawędzi (docelowa w zadaniu 5). */
+function ScaleSketch({ floor }: { floor: number }) {
+  const floors = Array.from({ length: TOP_FLOOR / 6 + 1 }, (_, i) => i * 6).filter((f) => f !== floor);
   return (
-    <div
-      aria-hidden="true"
-      className="absolute"
-      style={{ left: "var(--stop-scale-x)", top: "calc(var(--stop-anchor-y) + 0.525rem)" }}
-    >
-      {floors.map((f) => {
-        const distance = Math.abs(f - floor);
-        const major = f % 6 === 0;
-        return (
-          <span
-            key={f}
-            className="absolute block h-px bg-gold-soft"
-            style={{
-              top: `${(floor - f) * TICK}rem`,
-              width: major ? "0.75rem" : "0.4375rem",
-              [side === "left" ? "right" : "left"]: "0.25rem",
-              opacity: Math.max(0, 0.75 - distance * 0.075),
-            }}
-          />
-        );
-      })}
+    <div aria-hidden="true">
+      {floors.map((f) => (
+        <span
+          key={f}
+          className="absolute block h-px w-1.5 bg-ivory/45"
+          style={{
+            right: "calc(var(--stop-scale-x) - 0.1875rem)",
+            top: `calc(82% - ${f / TOP_FLOOR} * 64%)`,
+          }}
+        />
+      ))}
     </div>
   );
 }
@@ -65,19 +73,49 @@ function Frame({ index, lang }: { index: number; lang: Lang }) {
   const dict = dictionaries[lang];
   const plate = plates[frame.scene];
   const ref = useRef<HTMLElement>(null);
-  const [active, setActive] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [size, setSize] = useState<{ width: number; height: number } | null>(null);
+  // „Odtwórz animację”: nowy montaż stopu w stanie spoczynku, a w następnej klatce wejście.
+  const [cycle, setCycle] = useState(0);
+  const [armed, setArmed] = useState(true);
 
-  // Stop odsłania się, gdy kadr wypełnia ekran — jak zatrzymanie sceny na etapie.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Stop odsłania się, gdy kadr wypełnia ekran — jak zatrzymanie sceny na etapie.
     const io = new IntersectionObserver(
-      ([entry]) => setActive(Boolean(entry && entry.intersectionRatio >= 0.6)),
+      ([entry]) => setInView(Boolean(entry && entry.intersectionRatio >= 0.6)),
       { threshold: [0, 0.6] },
     );
+    const ro = new ResizeObserver(([entry]) => {
+      if (entry) setSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+    });
     io.observe(el);
-    return () => io.disconnect();
+    ro.observe(el);
+    return () => {
+      io.disconnect();
+      ro.disconnect();
+    };
   }, []);
+
+  useEffect(() => {
+    if (cycle === 0) return;
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setArmed(true));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [cycle]);
+
+  const replay = () => {
+    setArmed(false);
+    setCycle((c) => c + 1);
+  };
+
+  const pin = size ? coverPoint(plate, size.width, size.height, frame.pin) : null;
 
   return (
     <figure
@@ -94,17 +132,36 @@ function Frame({ index, lang }: { index: number; lang: Lang }) {
         sizes="100vw"
         // Dwa pliki na 6 kadrów, a strona może się otworzyć od razu na #stopy (LCP w dowolnym kadrze).
         loading="eager"
-        className={`object-cover ${plate.position}`}
+        className="object-cover"
+        style={{ objectPosition: `${plate.posX * 100}% ${plate.posY * 100}%` }}
       />
       <StageStop
+        key={cycle}
         copy={dict.stages[frame.stage.id]}
         floor={frame.stage.floor}
         floorLabel={dict.common.floor}
         side={frame.side}
-        active={active}
+        active={inView && armed}
+        pin={pin}
       >
-        <FloorScaleSketch floor={frame.stage.floor} side={frame.side} />
+        <ScaleSketch floor={frame.stage.floor} />
       </StageStop>
+      <button
+        type="button"
+        onClick={replay}
+        aria-label={`Odtwórz animację — kadr ${index + 1}`}
+        className={`group label absolute bottom-[6%] flex items-center gap-2 py-2 text-ivory [text-shadow:var(--shadow-text)] ${
+          frame.side === "left" ? "left-[6vw]" : "right-[6vw] max-md:right-14"
+        }`}
+      >
+        <span className="relative">
+          Odtwórz animację
+          <span className="absolute inset-x-0 -bottom-1 h-px origin-left scale-x-0 bg-gold-soft transition-transform duration-300 group-hover:scale-x-100 group-focus-visible:scale-x-100" />
+        </span>
+        <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
+          →
+        </span>
+      </button>
     </figure>
   );
 }
@@ -116,8 +173,8 @@ export function StopFrames() {
     <div>
       <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
         <p className="max-w-2xl text-sm text-ink-soft">
-          Pełnoekranowe kadry: etapy 01–03 na ulicy (dzień), 04–06 na nocnej panoramie. Stop wchodzi,
-          gdy kadr wypełni ekran. Skala pięter jest tu tylko szkicem.
+          Pełnoekranowe kadry: etapy 01–03 na ulicy (dzień), 04–06 na tarasie nocą. Stop wchodzi, gdy kadr
+          wypełni ekran. Punkt na wieży i kreski skali to zaślepki do zadania 5.
         </p>
         <div role="group" aria-label="Język stopów" className="label flex gap-4">
           {(Object.keys(dictionaries) as Lang[]).map((l) => (

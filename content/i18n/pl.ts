@@ -53,7 +53,7 @@ const pl = {
       label: "Etap 04 — Fasada",
       figure: "2 900",
       unit: "tafli",
-      headline: "szkła za lamelami co 50 cm",
+      headline: "szkła i 96 lameli co 1,1 m",
       fact: "Potrójne szyby wpuszczają 62% światła i tylko 32% ciepła słońca, a lamele w kolorze szampana dają cień latem.",
     },
     tarasy: {

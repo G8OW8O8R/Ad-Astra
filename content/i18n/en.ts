@@ -54,7 +54,7 @@ const en = {
       label: "Stage 04 — Façade",
       figure: "2,900",
       unit: "panes",
-      headline: "of glass behind 50 cm fins",
+      headline: "of glass and 96 fins every 1.1 m",
       fact: "Triple glazing lets in 62% of daylight and only 32% of the sun’s heat; champagne fins shade it in summer.",
     },
     tarasy: {

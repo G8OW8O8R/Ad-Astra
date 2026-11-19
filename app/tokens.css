@@ -25,24 +25,31 @@
   /* Linie */
   --hairline: 1px;
 
-  /* Przyciemnienie sceny pod tekstem stopów (radialne, --night). Krycie rdzenia dobrane testem
-     kontrastu na próbkach jasnej i nocnej sceny: lib/brand/scrim.test.ts. */
-  --stop-scrim-alpha: 0.8;
+  /* Czytelność tekstu na scenie (stopy etapów): kinowy margines od krawędzi po stronie tekstu,
+     wąskie zaciemnienie krawędzi przy skali pięter (prawa), delikatna winieta kadru i cień tekstu.
+     Krycia to minimum, przy którym cały tekst ma ≥ 4,5:1 na próbkach: lib/brand/legibility.test.ts. */
+  --stop-margin-alpha: 0.65;
+  --stop-rail-alpha: 0.6;
+  --stop-vignette-alpha: 0.35;
+  --shadow-text: 0 1px 24px rgb(15 18 32 / 0.35);
 
   /* Czasy ruchu (300–900 ms, DESIGN.md) */
-  --duration-fade: 300ms;
-  --duration-mask: 500ms;
+  --duration-exit: 300ms;
+  --duration-draw: 500ms;
+  --duration-sharpen: 600ms;
   --duration-rise: 700ms;
-  --duration-draw: 700ms;
+  --stagger: 80ms;
 
-  /* Krzywe ruchu: odsłanianie maską (szybki start, długie wyhamowanie) i rysowanie linii. */
+  /* Krzywe ruchu: odsłanianie (szybki start, długie wyhamowanie), rysowanie linii, przenikanie,
+     rozbłysk (lekkie przestrzelenie skali). */
   --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-fade: cubic-bezier(0.33, 0, 0.2, 1);
+  --ease-flare: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Stopy etapów: liczba-bohater 120–260 px (16vw) i linia nagłówka 28–40 px.
+  /* Stopy etapów: liczba-bohater 160–320 px (20vw) i linia nagłówka 28–40 px.
      Zmienne na :root (nie w @theme), bo używa ich arkusz komponentu, a nie klasy Tailwinda. */
-  --text-stop-figure: clamp(7.5rem, 16vw, 16.25rem); /* 120–260px */
+  --text-stop-figure: clamp(10rem, 20vw, 20rem); /* 160–320px */
   --text-stop-figure--line-height: 0.85;
   --text-stop-headline: clamp(1.75rem, 1.4714rem + 1.1429vw, 2.5rem); /* 28–40px */
   --text-stop-headline--line-height: 1.1;
@@ -72,7 +79,7 @@
 }
 
 @theme {
-  /* Skala płynna 12–260 px (liniowo między szerokością 390 a 1440 px). */
+  /* Skala płynna 12–320 px (liniowo między szerokością 390 a 1440 px). */
   --text-*: initial;
   --text-2xs: 0.75rem; /* 12px */
   --text-2xs--line-height: 1.5;
